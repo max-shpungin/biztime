@@ -65,7 +65,69 @@ router.post("/", async function (req, res, next) {
 });
 
 
+/**
+  PUT /companies/[code]
+  Edit existing company.
+
+  Should return 404 if company cannot be found.
+
+  Needs to be given JSON like: {name, description}
+
+  Returns update company object: {company: {code, name, description}}
+*/
+
+router.put('/:code', async function(req,res){
+  //debugger;//TODO: WHY ISN"T IT HITTING HERE!?!?!!?
+
+  if(req.body === undefined){
+    throw new BadRequestError();
+  }
+  const { code } = req.params;
+  const { name, description } = req.body;
+  const result = await db.query(`
+    UPDATE companies
+      SET
+          name=$2,
+          description=$3
+        WHERE code = $1
+        RETURNING code, name, description
+  `,[code, name, description]);
+
+  console.log("result",result)
+  const updatedCompany = result.rows[0];
+
+  console.log("updatedCompany",updatedCompany)
 
 
+  if (result.rows[0] === undefined) {
+    throw new NotFoundError(`${code} Not Found.`);
+  }
+
+  return res.json({ updatedCompany })
+});
+
+/**
+  DELETE /companies/[code]
+  Deletes company.
+
+  Should return 404 if company cannot be found.
+
+  Returns {status: "deleted"}
+ */
+router.delete('/:code' , async function(req, res){
+
+    const result = await db.query(`
+      DELETE FROM companies WHERE code=$1
+      RETURNING code, name, description
+    `,[req.params.code]);
+
+  const deletedCompany = result.rows[0];
+
+  if(!deletedCompany){
+    throw new NotFoundError(`${req.params.code} Not Found.`)
+  }
+  return res.json({ status: "deleted", removed: deletedCompany})
+
+});
 
 module.exports = router;

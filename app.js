@@ -8,6 +8,7 @@ const app = express();
 
 app.use(express.json());
 
+/**COMPANY ROUTES */
 app.use("/companies", companyRoutes)
 
 /** 404 handler: matches unmatched routes; raises NotFoundError. */
