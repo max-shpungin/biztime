@@ -6,7 +6,7 @@ const db = require("../db");
 
 const router = express.Router();
 
-const { NotFoundError } = require("../expressError");
+const { NotFoundError, BadRequestError } = require("../expressError");
 
 /**
  * GET /companies Returns list of companies, like
@@ -42,6 +42,28 @@ router.get("/:code", async function (req, res, next) {
   const company = result.rows[0];
   return res.json({ company }); ß;
 });
+
+/**
+ * POST /companies Adds a company.
+ * Needs to be given JSON like: {code, name, description}
+ * Returns obj of new company: {company: {code, name, description}}
+ * Throws BadRequest if no json received in body of request
+*/
+
+router.post("/", async function (req, res, next) {
+  if(req.body === undefined) {
+    throw new BadRequestError();
+  }
+  const { code, name, description } = req.body;
+  const result = await db.query(`
+    INSERT INTO companies (code, name, description)
+      VALUES ($1, $2, $3)
+      RETURNING code, name, description
+  `, [code, name, description]);
+  const newCompany = result.rows[0];
+  return res.status(201).json({ newCompany });
+});
+
 
 
 
