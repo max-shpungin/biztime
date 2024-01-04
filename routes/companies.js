@@ -17,7 +17,7 @@ router.get("/", async function (req, res, next) {
   const result = await db.query(`
     SELECT code, name, description
       FROM companies
-  `);
+  `);//TODO: ORDER BY...
   const companies = result.rows;
   return res.json({ companies });
 });
@@ -39,8 +39,8 @@ router.get("/:code", async function (req, res, next) {
   if (result.rows[0] === undefined) {
     throw new NotFoundError(`${code} Not Found.`);
   }
-  const company = result.rows[0];
-  return res.json({ company }); ß;
+  const company = result.rows[0]; //TODO: could flip so company is undefined
+  return res.json({ company });
 });
 
 /**
@@ -61,7 +61,7 @@ router.post("/", async function (req, res, next) {
       RETURNING code, name, description
   `, [code, name, description]);
   const newCompany = result.rows[0];
-  return res.status(201).json({ newCompany });
+  return res.status(201).json({ newCompany }); //TODO: docstring says return company!
 });
 
 
@@ -77,7 +77,7 @@ router.post("/", async function (req, res, next) {
 */
 
 router.put('/:code', async function(req,res){
-  //debugger;//TODO: WHY ISN"T IT HITTING HERE!?!?!!?
+  debugger;//TODO: WHY ISN"T IT HITTING HERE!?!?!!?
 
   if(req.body === undefined){
     throw new BadRequestError();
@@ -90,20 +90,20 @@ router.put('/:code', async function(req,res){
           name=$2,
           description=$3
         WHERE code = $1
-        RETURNING code, name, description
-  `,[code, name, description]);
+        RETURNING code, name, description`,
+    [code, name, description]);
 
   console.log("result",result)
+
   const updatedCompany = result.rows[0];
 
   console.log("updatedCompany",updatedCompany)
 
-
-  if (result.rows[0] === undefined) {
+  if (result.rows[0] === undefined) {//TODO:.. same as above
     throw new NotFoundError(`${code} Not Found.`);
   }
 
-  return res.json({ updatedCompany })
+  return res.json({ updatedCompany })//TODO:.. same as above
 });
 
 /**
@@ -112,22 +112,22 @@ router.put('/:code', async function(req,res){
 
   Should return 404 if company cannot be found.
 
-  Returns {status: "deleted"}
+  Returns {status: "deleted", removed: {code:...}}
  */
 router.delete('/:code' , async function(req, res){
 
     const result = await db.query(`
       DELETE FROM companies WHERE code=$1
       RETURNING code, name, description
-    `,[req.params.code]);
+    `,[req.params.code]);//TODO: be consistent
 
-  const deletedCompany = result.rows[0];
+  const deletedCompany = result.rows[0]; //TODO:.. same as above
 
   if(!deletedCompany){
     throw new NotFoundError(`${req.params.code} Not Found.`)
   }
-  return res.json({ status: "deleted", removed: deletedCompany})
 
+  return res.json({ status: "deleted", removed: deletedCompany})//TODO: update to just code vs all company data
 });
 
 module.exports = router;
