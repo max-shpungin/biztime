@@ -26,9 +26,9 @@ router.get("/", async function (req, res, next) {
 /**
  * GET /invoices/[id]
  * Returns obj on given invoice.
- * If invoice cannot be found, returns 404.
  * Returns
  * {invoice: {id, amt, paid, add_date, paid_date, company: {code, name, description}}
+ * If invoice cannot be found, returns 404.
 */
 
 router.get("/:id", async function (req, res, next) {
@@ -73,7 +73,7 @@ router.post('/', async function (req, res, next){
     INSERT INTO invoices (comp_code, amt)
       VALUES ($1, $2)
       RETURNING id, comp_code, amt, paid, add_date, paid_date`,
-      [comp_code,amt]);
+  [comp_code,amt]);
 
   const invoice = result.rows[0];
   return res.json({ invoice })
@@ -82,9 +82,9 @@ router.post('/', async function (req, res, next){
 /**
  * PUT /invoices/[id]
  * Updates an invoice.
- * If invoice cannot be found, returns a 404.
  * Needs to be passed in a JSON body of {amt}
  * Returns: {invoice: {id, comp_code, amt, paid, add_date, paid_date}}
+ * If invoice cannot be found, returns a 404.
 */
 
 router.put('/:id', async function (req, res, next){
@@ -93,7 +93,8 @@ router.put('/:id', async function (req, res, next){
   }
   const { id } = req.params;
   const { amt } = req.body;
-
+  // TODO: How to handle bad data gracefully? Would need to do this for all
+  // POST/PUT/PATCH/DELETE methods, anything that creates errors in db
   const result = await db.query(`
     UPDATE invoices
       SET amt=$1
@@ -112,8 +113,8 @@ router.put('/:id', async function (req, res, next){
 /**
  * DELETE /invoices/[id]
  * Deletes an invoice.
- * If invoice cannot be found, returns a 404.
  * Returns: {status: "deleted", invoice: id}
+ * If invoice cannot be found, returns a 404.
 */
 
 router.delete("/:id", async function(req, res, next) {
