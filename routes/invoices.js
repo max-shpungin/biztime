@@ -109,5 +109,28 @@ router.put('/:id', async function (req, res, next){
   return res.json({ invoice })
 });
 
+/**
+ * DELETE /invoices/[id]
+ * Deletes an invoice.
+ * If invoice cannot be found, returns a 404.
+ * Returns: {status: "deleted", invoice: id}
+*/
+
+router.delete("/:id", async function(req, res, next) {
+  const { id } = req.params;
+  const result = await db.query(`
+    DELETE
+      FROM invoices
+      WHERE id=$1
+      RETURNING id
+  `, [id]);
+
+  const invoice = result.rows[0];
+  if(invoice === undefined) {
+    throw new NotFoundError(`${id} Not Found`);
+  }
+  return res.json({ status: "deleted", invoice: id });
+});
+
 
 module.exports = router;
